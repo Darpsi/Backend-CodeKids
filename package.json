@@ -1,0 +1,22 @@
+{
+  "name": "codekids",
+  "version": "1.0.0",
+  "description": "Aquí se implementara el desarrollo del backend sobre el proyecto",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Darpsi/Backend-CodeKids.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Darpsi/Backend-CodeKids/issues"
+  },
+  "homepage": "https://github.com/Darpsi/Backend-CodeKids#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
