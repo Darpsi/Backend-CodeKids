@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "Aquí se implementara el desarrollo del backend sobre el proyecto",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,8 @@
   },
   "homepage": "https://github.com/Darpsi/Backend-CodeKids#readme",
   "dependencies": {
-    "express": "^4.21.2"
-  }
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.14.0"
+  } 
 }
