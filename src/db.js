@@ -11,15 +11,3 @@ export const pool = new pg.Pool({
     rejectUnauthorized: false, // Necesario para conexiones SSL
   },
 });
-
-// pool.connect()
-//     .then(() => {
-//         console.log('Conexión exitosa a la base de datos');
-//     })
-//     .finally(() => {
-//         pool.end();
-//     });
-
-// pool.query('SELECT * FROM libro').then((res) => {
-//     console.log(res.rows);
-// })
