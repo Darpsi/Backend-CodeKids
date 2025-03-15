@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getUsers, getUser1, postUser, deleteUser, putUser } from "../controllers/users.controllers.js";
+import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser} from "../controllers/users.controllers.js";
 
 const router = Router();
 
@@ -16,8 +16,12 @@ router.get('/users/:pk_correo', getUser1);
 router.post('/users', postUser);
 
 
+// Post para iniciar sesión
+router.post('/login', loginUser);
+
+
 // Delete para eliminar un usuario
-router.delete('/users/:pk_correo', deleteUser);
+router.delete('/user:pk_correo', deleteUser);
  
 
 // Put para actualizar un usuario
