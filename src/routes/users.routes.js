@@ -1,5 +1,4 @@
 import { Router } from "express";
-
 import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser} from "../controllers/users.controllers.js";
 
 const router = Router();
