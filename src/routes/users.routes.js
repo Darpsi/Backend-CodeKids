@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser} from "../controllers/users.controllers.js";
+import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser, changePassword} from "../controllers/users.controllers.js";
 
 const router = Router();
 
@@ -25,5 +25,8 @@ router.delete('/user:pk_correo', deleteUser);
 
 // Put para actualizar un usuario
 router.put('/users/:pk_correo', putUser);
+
+// Post para cambiar la contraseña
+router.post('/users/change-password', changePassword);
 
 export default router;

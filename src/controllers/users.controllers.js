@@ -1,3 +1,4 @@
+import e from 'express';
 import { pool } from '../db.js';
 
 // Aqui se realiza la consulta a la base de datos
@@ -87,3 +88,32 @@ export const putUser = async (req, res) => {
     const {rows} = await pool.query('UPDATE usuario SET nombre = $1, password = $2, certificado = $3 WHERE pk_correo = $4 RETURNING *', [data.nombre, data.password, data.certificado, pk_correo]);
     return res.json(rows[0]);
 }
+
+// Se cambia la contraseña de un usuario
+export const changePassword = async (req, res) => {
+    const { email, password, newPassword } = req.body;
+
+    try {
+        const result = await pool.query('SELECT * FROM usuario WHERE pk_correo = $1', [email]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const user = result.rows[0];
+
+        if (user.password !== password) {
+            return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+
+        if (user.password === newPassword) {
+            return res.status(400).json({ message: 'La nueva contraseña no puede ser la misma que la actual' });
+        }
+        await pool.query('UPDATE usuario SET password = $1 WHERE pk_correo = $2', [newPassword, email]);
+
+        return res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
+    } catch (error) {
+        console.error('Error al cambiar la contraseña:', error);
+        return res.status(500).json({ message: 'Error del servidor' });
+    }
+};
