@@ -117,3 +117,35 @@ export const changePassword = async (req, res) => {
         return res.status(500).json({ message: 'Error del servidor' });
     }
 };
+
+export const getName = async (req, res) => {
+    try {
+        const { pk_correo } = req.params;
+        const { rows } = await pool.query('SELECT nombre FROM usuario WHERE pk_correo = $1', [pk_correo]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        res.json(rows[0].nombre);
+    } catch (error) {
+        console.error('Error al obtener el nombre del usuario:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+}
+
+export const getInstitution = async (req, res) => {
+    try {
+        const { pk_correo } = req.params;
+        const { rows } = await pool.query('SELECT i.nombre FROM usuario u JOIN institucion i ON u.correo_institucion = i.correo WHERE u.pk_correo = $1', [pk_correo]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        res.json(rows[0].nombre);
+    } catch (error) {
+        console.error('Error al obtener la institución del usuario:', error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+}
