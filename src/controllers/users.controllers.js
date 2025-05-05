@@ -149,3 +149,54 @@ export const getInstitution = async (req, res) => {
         res.status(500).json({ message: 'Error del servidor' });
     }
 }
+
+export const getProgresoUsuario = async (req, res) => {
+    const { correo } = req.params;
+    try {
+      const result = await pool.query(
+        'SELECT id_modulo_actual FROM usuario WHERE pk_correo = $1',
+        [correo]
+      );
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      res.json({ maxModulo: result.rows[0].id_modulo_actual });
+    } catch (error) {
+      console.error('Error al obtener el progreso:', error);
+      res.status(500).json({ error: 'Error al obtener el progreso del usuario' });
+    }
+  };
+
+  export const actualizarProgreso = async (req, res) => {
+    const { correo, modulo } = req.body;
+  
+    try {
+      const result = await pool.query(
+        'SELECT id_modulo_actual FROM usuario WHERE pk_correo = $1',
+        [correo]
+      );
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      const moduloActual = result.rows[0].id_modulo_actual;
+
+      // para evitar que repita el examen y se vuelva a sumar
+      if (moduloActual === modulo && moduloActual < 8) {
+        await pool.query(
+          'UPDATE usuario SET id_modulo_actual = id_modulo_actual + 1 WHERE pk_correo = $1',
+          [correo]
+        );
+        return res.json({ mensaje: 'Progreso actualizado', nuevoModulo: moduloActual + 1 });
+      } else {
+        return res.json({ mensaje: 'No se actualizó el progreso' });
+      }
+    } catch (error) {
+      console.error('Error al actualizar progreso:', error);
+      res.status(500).json({ error: 'Error en el servidor' });
+    }
+  };
+  

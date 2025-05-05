@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser, changePassword, getName, getInstitution} from "../controllers/users.controllers.js";
+import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser, changePassword, getName, getInstitution,getProgresoUsuario,actualizarProgreso} from "../controllers/users.controllers.js";
 
 const router = Router();
 
@@ -26,6 +26,9 @@ router.delete('/user:pk_correo', deleteUser);
 // Put para actualizar un usuario
 router.put('/users/:pk_correo', putUser);
 
+// Get para obtener el progreso de un usuario
+router.get('/progreso/:correo', getProgresoUsuario);
+
 
 // Post para cambiar la contraseña
 router.post('/users/change-password', changePassword);
@@ -34,6 +37,8 @@ router.post('/users/change-password', changePassword);
 // Get para obtener el nombre de un usuario
 router.get('/users/name/:pk_correo', getName);
 
+// Put para actualizar el progreso en modulos de un usuario
+router.put('/progreso/actualizar', actualizarProgreso);
 
 // Get para obtener la institución de un usuario
 router.get('/users/institution/:pk_correo', getInstitution);
