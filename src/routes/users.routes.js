@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser, changePassword, getName, getInstitution,getProgresoUsuario,actualizarProgreso} from "../controllers/users.controllers.js";
+import { getUsers, getUser1, postUser, deleteUser, putUser, loginUser, changePassword, getName, getInstitution,getProgresoUsuario,actualizarProgreso, getCertificado} from "../controllers/users.controllers.js";
 
 const router = Router();
 
@@ -39,6 +39,8 @@ router.get('/users/name/:pk_correo', getName);
 
 // Put para actualizar el progreso en modulos de un usuario
 router.put('/progreso/actualizar', actualizarProgreso);
+
+router.get('/certificado/:pk_correo', getCertificado);
 
 // Get para obtener la institución de un usuario
 router.get('/users/institution/:pk_correo', getInstitution);

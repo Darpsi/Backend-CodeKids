@@ -169,34 +169,64 @@ export const getProgresoUsuario = async (req, res) => {
     }
   };
 
-  export const actualizarProgreso = async (req, res) => {
-    const { correo, modulo } = req.body;
   
-    try {
-      const result = await pool.query(
-        'SELECT id_modulo_actual FROM usuario WHERE pk_correo = $1',
+export const actualizarProgreso = async (req, res) => {
+  const { correo, modulo } = req.body;
+
+  try {
+    const result = await pool.query(
+      'SELECT id_modulo_actual, certificado FROM usuario WHERE pk_correo = $1',
+      [correo]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const { id_modulo_actual, certificado } = result.rows[0];
+
+        // Si acaba de aprobar el módulo 8, desbloquear el certificado si aún no lo tiene
+    if (id_modulo_actual === 8 && Number(modulo) === 8 && !certificado) {
+      await pool.query(
+        'UPDATE usuario SET certificado = TRUE WHERE pk_correo = $1',
         [correo]
       );
-  
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Usuario no encontrado' });
-      }
-  
-      const moduloActual = result.rows[0].id_modulo_actual;
-
-      // para evitar que repita el examen y se vuelva a sumar
-      if (moduloActual === modulo && moduloActual < 8) {
-        await pool.query(
-          'UPDATE usuario SET id_modulo_actual = id_modulo_actual + 1 WHERE pk_correo = $1',
-          [correo]
-        );
-        return res.json({ mensaje: 'Progreso actualizado', nuevoModulo: moduloActual + 1 });
-      } else {
-        return res.json({ mensaje: 'No se actualizó el progreso' });
-      }
-    } catch (error) {
-      console.error('Error al actualizar progreso:', error);
-      res.status(500).json({ error: 'Error en el servidor' });
+      return res.json({ mensaje: '¡Certificado desbloqueado!' });
     }
-  };
-  
+
+    // Usuario está justo en el módulo actual que acaba de aprobar (y no pasó del 8)
+    if (id_modulo_actual === Number(modulo) && id_modulo_actual < 8) {
+      await pool.query(
+        'UPDATE usuario SET id_modulo_actual = id_modulo_actual + 1 WHERE pk_correo = $1',
+        [correo]
+      );
+      return res.json({ mensaje: 'Progreso actualizado', nuevoModulo: id_modulo_actual + 1 });
+    }
+
+    return res.status(400).json({ error: 'Error de m' });
+
+  } catch (error) {
+    console.error('Error al actualizar progreso:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+export const getCertificado = async (req, res) => {
+  const { pk_correo } = req.params;
+
+  try {
+    const result = await pool.query(
+      'SELECT certificado FROM usuario WHERE pk_correo = $1',
+      [pk_correo]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ certificado: result.rows[0].certificado });
+  } catch (error) {
+    console.error('Error al obtener certificado:', error);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
