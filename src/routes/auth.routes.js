@@ -2,14 +2,9 @@ import { Router } from 'express';
 import authController from "../controllers/auth.controllers.js";
 const { requestPasswordReset, resetPassword, verifyToken } = authController;
 
-
 const router = Router();
 
-// Rutas para la recuperación de contraseña
-
-// Ruta para solicitar el restablecimiento de contraseña
-// Esta ruta recibe el correo electrónico del usuario y genera un token de restablecimiento, 
-// el cual se envia al correo electrónico del usuario.
+// Envio de correo para restablecer la contraseña con el token
 router.post('/request-reset', requestPasswordReset);
 
 // Ruta para verificar el token
