@@ -39,31 +39,54 @@ export const postUser = async (req, res) => {
     }
 }
 
-// Se inicia sesión
+// Se inicia sesión y se valida si es usuario normal o institucion
 export const loginUser = async (req, res) => {
-    const { pk_correo, password } = req.body;
+  const { pk_correo, password } = req.body;
 
-    try {
-        // Buscar usuario por correo
-        const { rows } = await pool.query('SELECT * FROM usuario WHERE pk_correo = $1', [pk_correo]);
+  try {
+    // Buscar en la tabla usuario (usuario normal)
+    const { rows: rows_user } = await pool.query(
+      'SELECT * FROM usuario WHERE pk_correo = $1',
+      [pk_correo]
+    );
 
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'El correo no está registrado' });
-        }
+    if (rows_user.length > 0) {
+      const usuario = rows_user[0];
+      const esValida = password === usuario.password;
 
-        const user = rows[0];
-
-        // Verificar contraseña
-        if (user.password !== password) {
-            return res.status(401).json({ message: 'Contraseña incorrecta' });
-        }
-
-        // Si todo está bien, enviar mensaje de éxito o datos del usuario (puedes ajustar esto según lo que necesites)
-        res.json({ message: 'Inicio de sesión exitoso', user });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error en el inicio de sesión' });
+      if (esValida) {
+        return res.json({
+          message: 'Inicio de sesión exitoso',
+          tipo: 'normal',
+        });
+      }
     }
+
+    // Buscar en la tabla institucion (superusuario)
+    const { rows: rows_admin } = await pool.query(
+      'SELECT * FROM institucion WHERE correo = $1',
+      [pk_correo]
+    );
+
+    if (rows_admin.length > 0) {
+      const admin = rows_admin[0];
+      const esValida = password === admin.password;
+
+      if (esValida) {
+        return res.json({
+          message: 'Inicio de sesión exitoso',
+          tipo: 'admin',
+        });
+      }
+    }
+
+    // Si no encontró nada válido
+    return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error en el inicio de sesión' });
+  }
 };
 
 
