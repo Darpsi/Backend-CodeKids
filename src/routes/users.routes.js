@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { getUsers, getUser1, postUser, deleteUser, putUser, 
     loginUser, changePassword, getName, getInstitution, getProgresoUsuario,
-    actualizarProgreso, getCertificado} from "../controllers/users.controllers.js";
+    actualizarProgreso, getCertificado, getUsersInInstitution, postUserInstitution} from "../controllers/users.controllers.js";
 
 const router = Router();
 
@@ -40,5 +40,12 @@ router.get('/certificado/:pk_correo', getCertificado);
 
 // Get para obtener la institución de un usuario
 router.get('/users/institution/:pk_correo', getInstitution);
+
+// Get para obtener los usuarios de una institución
+router.get('/users/in-institution/:correo', getUsersInInstitution);
+
+// Put para actualizar la institución de un usuario
+router.post('/users/update-institution', postUserInstitution);
+
 
 export default router;
