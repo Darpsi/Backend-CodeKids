@@ -253,3 +253,62 @@ export const getCertificado = async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 };
+
+export const getUsersInInstitution = async (req, res) => {
+  const {correo} = req.params;
+
+  try {
+    const { rows } = await pool.query('select u.nombre, u.id_modulo_actual from institucion i join usuario u ON i.correo = u.correo_institucion where i.correo = $1', [correo]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron usuarios para esta institución' });
+    }
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener usuarios de la institución:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
+
+export const postUserInstitution = async (req, res) => {
+  const { pk_correo, correo_institucion } = req.body;
+
+  try {
+    // 1. Consultar al usuario por su correo
+    const consult = await pool.query(
+      'SELECT correo_institucion FROM usuario WHERE pk_correo = $1',
+      [pk_correo]
+    );
+
+    if (consult.rowCount === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const usuario = consult.rows[0];
+
+    // 2. Verificar si ya pertenece a esa institución
+    if (usuario.correo_institucion === correo_institucion) {
+      return res.status(400).json({ message: 'El usuario ya pertenece a esta institución' });
+    }
+
+    // 3. Si pertenece a otra institución, puedes validar si debe cambiarse o no
+    if (
+      usuario.correo_institucion &&
+      usuario.correo_institucion !== correo_institucion
+    ) {
+      return res
+        .status(400)
+        .json({ message: 'El usuario ya pertenece a otra institución' });
+    }
+
+    // 4. Actualizar el correo institucional
+    const result = await pool.query(
+      'UPDATE usuario SET correo_institucion = $1 WHERE pk_correo = $2 RETURNING *',
+      [correo_institucion, pk_correo]
+    );
+
+    res.json({ message: 'Institución actualizada correctamente'});
+  } catch (error) {
+    console.error('Error al actualizar la institución:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
