@@ -312,3 +312,30 @@ export const postUserInstitution = async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor' });
   }
 };
+export const desbloquearInsignia = async (req, res) => {
+  const { correo, id_insignia } = req.body;
+
+  try {
+    const result = await pool.query(`
+      SELECT desbloqueado FROM usuario_insignia
+      WHERE usuario_correo = $1 AND id_insignia = $2
+    `, [correo, id_insignia]);
+
+    if (result.rowCount > 0 && result.rows[0].desbloqueado) {
+      return res.json({ itwasunlock: true });
+    }
+
+    await pool.query(`
+      INSERT INTO usuario_insignia (usuario_correo, id_insignia, desbloqueado)
+      VALUES ($1, $2, true)
+      ON CONFLICT (usuario_correo, id_insignia)
+      DO UPDATE SET desbloqueado = true;
+    `, [correo, id_insignia]);
+
+    res.json({ itwasunlock: false });
+
+  } catch (error) {
+    console.error("Error al desbloquear insignia:", error);
+    res.status(500).json({ error: "Error al desbloquear la insignia" });
+  }
+};
