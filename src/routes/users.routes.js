@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getUsers, getUser1, postUser, deleteUser, putUser, 
     loginUser, changePassword, getName, getInstitution, getProgresoUsuario,
     actualizarProgreso, getCertificado, getUsersInInstitution, postUserInstitution,
-    desbloquearInsignia} from "../controllers/users.controllers.js";
+    desbloquearInsignia,GetInsigniasDesbloqueadas} from "../controllers/users.controllers.js";
 
 const router = Router();
 
@@ -49,5 +49,7 @@ router.get('/users/in-institution/:correo', getUsersInInstitution);
 router.post('/users/update-institution', postUserInstitution);
 
 router.post('/insignia/desbloquear', desbloquearInsignia);
+
+router.get('/insignias-desbloqueadas/:correo', GetInsigniasDesbloqueadas);
 
 export default router;

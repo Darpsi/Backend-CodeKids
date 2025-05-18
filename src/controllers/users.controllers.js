@@ -312,6 +312,7 @@ export const postUserInstitution = async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor' });
   }
 };
+
 export const desbloquearInsignia = async (req, res) => {
   const { correo, id_insignia } = req.body;
 
@@ -337,5 +338,23 @@ export const desbloquearInsignia = async (req, res) => {
   } catch (error) {
     console.error("Error al desbloquear insignia:", error);
     res.status(500).json({ error: "Error al desbloquear la insignia" });
+  }
+};
+
+export const GetInsigniasDesbloqueadas = async (req, res) => {
+  const { correo } = req.params;
+
+  try {
+    const result = await pool.query(`
+      SELECT id_insignia FROM usuario_insignia
+      WHERE usuario_correo = $1 AND desbloqueado = true
+    `, [correo]);
+
+    const idsDesbloqueadas = result.rows.map(row => row.id_insignia);
+    res.json({ desbloqueadas: idsDesbloqueadas });
+
+  } catch (error) {
+    console.error("Error al obtener insignias desbloqueadas:", error);
+    res.status(500).json({ error: "Error al obtener insignias" });
   }
 };
