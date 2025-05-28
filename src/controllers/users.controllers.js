@@ -1,5 +1,6 @@
 import e from 'express';
 import { pool } from '../db.js';
+import bcrypt from 'bcrypt'; 
 
 // Aqui se realiza la consulta a la base de datos
 
@@ -26,9 +27,14 @@ export const getUser1 = async (req, res) => {
 }
 
 // Se crea un usuario
+
+const saltRounds = 10;
+
 export const postUser = async (req, res) => {
     try {
         const data = req.body;
+        // Encriptar la contraseña
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
         const {rows} = await pool.query('INSERT INTO usuario (pk_correo, nombre, password, certificado) VALUES ($1, $2, $3, $4) RETURNING *', [data.pk_correo, data.nombre, data.password, data.null]);
         return res.json(rows[0]);
     } catch (error) {
@@ -52,7 +58,7 @@ export const loginUser = async (req, res) => {
 
     if (rows_user.length > 0) {
       const usuario = rows_user[0];
-      const esValida = password === usuario.password;
+      const esValida = await bcrypt.compare(password, usuario.password);
 
       if (esValida) {
         return res.json({
@@ -70,7 +76,7 @@ export const loginUser = async (req, res) => {
 
     if (rows_admin.length > 0) {
       const admin = rows_admin[0];
-      const esValida = password === admin.password;
+      const esValida = await bcrypt.compare(password, admin.password);
 
       if (esValida) {
         return res.json({
