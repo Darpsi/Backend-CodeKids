@@ -35,7 +35,7 @@ export const postUser = async (req, res) => {
         const data = req.body;
         // Encriptar la contraseña
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        const {rows} = await pool.query('INSERT INTO usuario (pk_correo, nombre, password, certificado) VALUES ($1, $2, $3, $4) RETURNING *', [data.pk_correo, data.nombre, data.password, data.null]);
+        const {rows} = await pool.query('INSERT INTO usuario (pk_correo, nombre, password, certificado) VALUES ($1, $2, $3, $4) RETURNING *', [data.pk_correo, data.nombre, data.password, hashedPassword ,data.null]);
         return res.json(rows[0]);
     } catch (error) {
         if (error?.code === '23505') {
