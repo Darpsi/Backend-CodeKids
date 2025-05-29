@@ -1,5 +1,6 @@
 import e from 'express';
 import { pool } from '../db.js';
+import bcrypt from 'bcrypt'; 
 
 // Aqui se realiza la consulta a la base de datos
 
@@ -26,18 +27,36 @@ export const getUser1 = async (req, res) => {
 }
 
 // Se crea un usuario
+
+const saltRounds = 10;
+
 export const postUser = async (req, res) => {
-    try {
-        const data = req.body;
-        const {rows} = await pool.query('INSERT INTO usuario (pk_correo, nombre, password, certificado) VALUES ($1, $2, $3, $4) RETURNING *', [data.pk_correo, data.nombre, data.password, data.null]);
-        return res.json(rows[0]);
-    } catch (error) {
-        if (error?.code === '23505') {
-            return res.status(409).json({ message:'El correo ya existe' });
-        }
-        return res.status(500).json({ message: 'Error al insertar el usuario' });
+  try {
+    const { pk_correo, nombre, password, certificado } = req.body;
+
+    // Validate certificado
+    if (certificado !== undefined && typeof certificado !== 'boolean') {
+      return res.status(400).json({ message: 'El certificado debe ser un valor booleano' });
     }
-}
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Insert user
+    const { rows } = await pool.query(
+      'INSERT INTO usuario (pk_correo, nombre, password, certificado) VALUES ($1, $2, $3, $4) RETURNING pk_correo, nombre, certificado',
+      [pk_correo.toLowerCase(), nombre, hashedPassword, certificado ?? null]
+    );
+
+    return res.status(201).json(rows[0]);
+  } catch (error) {
+    if (error?.code === '23505') {
+      return res.status(409).json({ message: 'El correo ya existe' });
+    }
+    console.error('Error al insertar usuario:', error.message, error.stack);
+    return res.status(500).json({ message: 'Error al insertar el usuario', details: error.message });
+  }
+};
 
 // Se inicia sesión y se valida si es usuario normal o institucion
 export const loginUser = async (req, res) => {
@@ -52,7 +71,7 @@ export const loginUser = async (req, res) => {
 
     if (rows_user.length > 0) {
       const usuario = rows_user[0];
-      const esValida = password === usuario.password;
+      const esValida = await bcrypt.compare(password, usuario.password);
 
       if (esValida) {
         return res.json({
@@ -70,7 +89,7 @@ export const loginUser = async (req, res) => {
 
     if (rows_admin.length > 0) {
       const admin = rows_admin[0];
-      const esValida = password === admin.password;
+      const esValida = await bcrypt.compare(password, admin.password);
 
       if (esValida) {
         return res.json({
@@ -125,14 +144,19 @@ export const changePassword = async (req, res) => {
 
         const user = result.rows[0];
 
-        if (user.password !== password) {
-            return res.status(401).json({ message: 'Contraseña incorrecta' });
-        }
+        const isValid = await bcrypt.compare(password, user.password);
+          if (!isValid) {
+            return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+          }
 
-        if (user.password === newPassword) {
+        const isSame = await bcrypt.compare(newPassword, user.password);
+          if (isSame) {
             return res.status(400).json({ message: 'La nueva contraseña no puede ser la misma que la actual' });
-        }
-        await pool.query('UPDATE usuario SET password = $1 WHERE pk_correo = $2', [newPassword, email]);
+          }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        await pool.query('UPDATE usuario SET password = $1 WHERE pk_correo = $2', [hashedNewPassword, email]);
 
         return res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
     } catch (error) {
