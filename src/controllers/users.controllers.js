@@ -250,7 +250,7 @@ export const actualizarProgreso = async (req, res) => {
       return res.json({ mensaje: 'Progreso actualizado', nuevoModulo: id_modulo_actual + 1 });
     }
 
-    return res.status(400).json({ error: 'Error de m' });
+    return res.status(400).json({ error: 'No avanza modulo' });
 
   } catch (error) {
     console.error('Error al actualizar progreso:', error);
@@ -342,8 +342,10 @@ export const desbloquearInsignia = async (req, res) => {
 
   try {
     const result = await pool.query(`
-      SELECT desbloqueado FROM usuario_insignia
-      WHERE usuario_correo = $1 AND id_insignia = $2
+      SELECT ui.desbloqueado, i.descripcion
+      FROM usuario_insignia ui
+      JOIN insignia i ON ui.id_insignia = i.id
+      WHERE ui.usuario_correo = $1 AND ui.id_insignia = $2
     `, [correo, id_insignia]);
 
     if (result.rowCount > 0 && result.rows[0].desbloqueado) {
@@ -357,13 +359,18 @@ export const desbloquearInsignia = async (req, res) => {
       DO UPDATE SET desbloqueado = true;
     `, [correo, id_insignia]);
 
-    res.json({ itwasunlock: false });
+    const descRes = await pool.query(`
+      SELECT descripcion FROM insignia WHERE id = $1
+    `, [id_insignia]);
+
+    res.json({ itwasunlock: false, descripcion: descRes.rows[0].descripcion });
 
   } catch (error) {
     console.error("Error al desbloquear insignia:", error);
     res.status(500).json({ error: "Error al desbloquear la insignia" });
   }
 };
+
 
 export const GetInsigniasDesbloqueadas = async (req, res) => {
   const { correo } = req.params;
