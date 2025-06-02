@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { getUsers, getUser1, postUser, deleteUser, putUser, 
-    loginUser, changePassword, getName, getInstitution, getProgresoUsuario,
-    actualizarProgreso, getCertificado, getUsersInInstitution, postUserInstitution,
-    desbloquearInsignia,GetInsigniasDesbloqueadas} from "../controllers/users.controllers.js";
+import {
+  getUsers, getUser1, postUser, deleteUser, putUser,
+  loginUser, changePassword, getName, getInstitution, getProgresoUsuario,
+  actualizarProgreso, getCertificado, getUsersInInstitution, postUserInstitution,
+  desbloquearInsignia, GetInsigniasDesbloqueadas, deleteUserInstitution
+} from "../controllers/users.controllers.js";
 
 const router = Router();
 
@@ -20,7 +22,7 @@ router.post('/login', loginUser);
 
 // Delete para eliminar un usuario
 router.delete('/user:pk_correo', deleteUser);
- 
+
 // Put para actualizar un usuario
 router.put('/users/:pk_correo', putUser);
 
@@ -47,6 +49,9 @@ router.get('/users/in-institution/:correo', getUsersInInstitution);
 
 // Put para actualizar la institución de un usuario
 router.post('/users/update-institution', postUserInstitution);
+
+// actualizar la institución de un usuario
+router.post('/users/delete-institution', deleteUserInstitution);
 
 router.post('/insignia/desbloquear', desbloquearInsignia);
 

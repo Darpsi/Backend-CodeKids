@@ -1,29 +1,29 @@
 import e from 'express';
 import { pool } from '../db.js';
-import bcrypt from 'bcrypt'; 
+import bcrypt from 'bcrypt';
 
 // Aqui se realiza la consulta a la base de datos
 
 // Se muestran todos los Usuarios
 export const getUsers = async (req, res) => {
 
-    // se destructura el resultado para solo obtener lo relevante (rows)
-    const {rows} = await pool.query('SELECT * FROM usuario');
-    res.json(rows);
+  // se destructura el resultado para solo obtener lo relevante (rows)
+  const { rows } = await pool.query('SELECT * FROM usuario');
+  res.json(rows);
 }
 
 // Se muestra un solo usuario
 export const getUser1 = async (req, res) => {
 
-    // se obtiene el id de los parámetros
-    const { pk_correo } = req.params;
-    const {rows} = await pool.query('SELECT * FROM usuario WHERE pk_correo = $1', [pk_correo]);
-    
-    if (rows.length === 0) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
+  // se obtiene el id de los parámetros
+  const { pk_correo } = req.params;
+  const { rows } = await pool.query('SELECT * FROM usuario WHERE pk_correo = $1', [pk_correo]);
 
-    res.json(rows[0]);
+  if (rows.length === 0) {
+    return res.status(404).json({ message: 'Usuario no encontrado' });
+  }
+
+  res.json(rows[0]);
 }
 
 // Se crea un usuario
@@ -111,112 +111,112 @@ export const loginUser = async (req, res) => {
 
 // Se elimina un usuario
 export const deleteUser = async (req, res) => {
-    const { pk_correo } = req.params;
-    const {rowCount} = await pool.query('DELETE FROM usuario WHERE pk_correo = $1 RETURNING *', [pk_correo]);
+  const { pk_correo } = req.params;
+  const { rowCount } = await pool.query('DELETE FROM usuario WHERE pk_correo = $1 RETURNING *', [pk_correo]);
 
-    // si no se encontró el usuario (rowCount indica la cantidad de filas afectadas)
-    if (rowCount === 0) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
+  // si no se encontró el usuario (rowCount indica la cantidad de filas afectadas)
+  if (rowCount === 0) {
+    return res.status(404).json({ message: 'Usuario no encontrado' });
+  }
 
-    return res.sendStatus(204); // Todo OK, no hay contenido para devolver
+  return res.sendStatus(204); // Todo OK, no hay contenido para devolver
 }
 
 // Se actualiza un usuario
 export const putUser = async (req, res) => {
-    const { pk_correo } = req.params;
-    const data = req.body;
-    
-    const {rows} = await pool.query('UPDATE usuario SET nombre = $1, password = $2, certificado = $3 WHERE pk_correo = $4 RETURNING *', [data.nombre, data.password, data.certificado, pk_correo]);
-    return res.json(rows[0]);
+  const { pk_correo } = req.params;
+  const data = req.body;
+
+  const { rows } = await pool.query('UPDATE usuario SET nombre = $1, password = $2, certificado = $3 WHERE pk_correo = $4 RETURNING *', [data.nombre, data.password, data.certificado, pk_correo]);
+  return res.json(rows[0]);
 }
 
 // Se cambia la contraseña de un usuario
 export const changePassword = async (req, res) => {
-    const { email, password, newPassword } = req.body;
+  const { email, password, newPassword } = req.body;
 
-    try {
-        const result = await pool.query('SELECT * FROM usuario WHERE pk_correo = $1', [email]);
+  try {
+    const result = await pool.query('SELECT * FROM usuario WHERE pk_correo = $1', [email]);
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        const user = result.rows[0];
-
-        const isValid = await bcrypt.compare(password, user.password);
-          if (!isValid) {
-            return res.status(401).json({ message: 'Contraseña actual incorrecta' });
-          }
-
-        const isSame = await bcrypt.compare(newPassword, user.password);
-          if (isSame) {
-            return res.status(400).json({ message: 'La nueva contraseña no puede ser la misma que la actual' });
-          }
-
-        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
-
-        await pool.query('UPDATE usuario SET password = $1 WHERE pk_correo = $2', [hashedNewPassword, email]);
-
-        return res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
-    } catch (error) {
-        console.error('Error al cambiar la contraseña:', error);
-        return res.status(500).json({ message: 'Error del servidor' });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    const user = result.rows[0];
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ message: 'Contraseña actual incorrecta' });
+    }
+
+    const isSame = await bcrypt.compare(newPassword, user.password);
+    if (isSame) {
+      return res.status(400).json({ message: 'La nueva contraseña no puede ser la misma que la actual' });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    await pool.query('UPDATE usuario SET password = $1 WHERE pk_correo = $2', [hashedNewPassword, email]);
+
+    return res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al cambiar la contraseña:', error);
+    return res.status(500).json({ message: 'Error del servidor' });
+  }
 };
 
 export const getName = async (req, res) => {
-    try {
-        const { pk_correo } = req.params;
-        const { rows } = await pool.query('SELECT nombre FROM usuario WHERE pk_correo = $1', [pk_correo]);
+  try {
+    const { pk_correo } = req.params;
+    const { rows } = await pool.query('SELECT nombre FROM usuario WHERE pk_correo = $1', [pk_correo]);
 
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        res.json(rows[0].nombre);
-    } catch (error) {
-        console.error('Error al obtener el nombre del usuario:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    res.json(rows[0].nombre);
+  } catch (error) {
+    console.error('Error al obtener el nombre del usuario:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
 }
 
 export const getInstitution = async (req, res) => {
-    try {
-        const { pk_correo } = req.params;
-        const { rows } = await pool.query('SELECT i.nombre FROM usuario u JOIN institucion i ON u.correo_institucion = i.correo WHERE u.pk_correo = $1', [pk_correo]);
+  try {
+    const { pk_correo } = req.params;
+    const { rows } = await pool.query('SELECT i.nombre FROM usuario u JOIN institucion i ON u.correo_institucion = i.correo WHERE u.pk_correo = $1', [pk_correo]);
 
-        if (rows.length === 0) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        res.json(rows[0].nombre);
-    } catch (error) {
-        console.error('Error al obtener la institución del usuario:', error);
-        res.status(500).json({ message: 'Error del servidor' });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    res.json(rows[0].nombre);
+  } catch (error) {
+    console.error('Error al obtener la institución del usuario:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
 }
 
 export const getProgresoUsuario = async (req, res) => {
-    const { correo } = req.params;
-    try {
-      const result = await pool.query(
-        'SELECT id_modulo_actual FROM usuario WHERE pk_correo = $1',
-        [correo]
-      );
-  
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Usuario no encontrado' });
-      }
-  
-      res.json({ maxModulo: result.rows[0].id_modulo_actual });
-    } catch (error) {
-      console.error('Error al obtener el progreso:', error);
-      res.status(500).json({ error: 'Error al obtener el progreso del usuario' });
-    }
-  };
+  const { correo } = req.params;
+  try {
+    const result = await pool.query(
+      'SELECT id_modulo_actual FROM usuario WHERE pk_correo = $1',
+      [correo]
+    );
 
-  
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ maxModulo: result.rows[0].id_modulo_actual });
+  } catch (error) {
+    console.error('Error al obtener el progreso:', error);
+    res.status(500).json({ error: 'Error al obtener el progreso del usuario' });
+  }
+};
+
+
 export const actualizarProgreso = async (req, res) => {
   const { correo, modulo } = req.body;
 
@@ -232,7 +232,7 @@ export const actualizarProgreso = async (req, res) => {
 
     const { id_modulo_actual, certificado } = result.rows[0];
 
-        // Si acaba de aprobar el módulo 8, desbloquear el certificado si aún no lo tiene
+    // Si acaba de aprobar el módulo 8, desbloquear el certificado si aún no lo tiene
     if (id_modulo_actual === 8 && Number(modulo) === 8 && !certificado) {
       await pool.query(
         'UPDATE usuario SET certificado = TRUE WHERE pk_correo = $1',
@@ -279,7 +279,7 @@ export const getCertificado = async (req, res) => {
 };
 
 export const getUsersInInstitution = async (req, res) => {
-  const {correo} = req.params;
+  const { correo } = req.params;
 
   try {
     const { rows } = await pool.query('select u.nombre, u.id_modulo_actual from institucion i join usuario u ON i.correo = u.correo_institucion where i.correo = $1', [correo]);
@@ -330,9 +330,31 @@ export const postUserInstitution = async (req, res) => {
       [correo_institucion, pk_correo]
     );
 
-    res.json({ message: 'Institución actualizada correctamente'});
+    res.json({ message: 'Institución actualizada correctamente' });
   } catch (error) {
     console.error('Error al actualizar la institución:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
+
+// Eliminar la institución de un usuario
+export const deleteUserInstitution = async (req, res) => {
+  const { email_inst, pk_correo } = req.body;
+  try {
+    const user_institution = await pool.query("SELECT correo_institucion FROM usuario WHERE pk_correo = $1", [pk_correo]);
+
+    if (user_institution.rowCount === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    if (user_institution.rows[0].correo_institucion !== email_inst) {
+      return res.status(400).json({ message: 'El usuario no pertenece a esta institución' });
+    }
+
+    await pool.query("UPDATE usuario SET correo_institucion = NULL WHERE pk_correo = $1", [pk_correo]);
+    res.json({ message: 'Institución eliminada correctamente' });
+  } catch (error) {
+    console.error('Error al eleminar la institución del suario:', error);
     res.status(500).json({ message: 'Error en el servidor' });
   }
 };
