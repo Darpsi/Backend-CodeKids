@@ -48,7 +48,6 @@ Backend-CodeKids/
 Antes de ejecutar el proyecto, crea un archivo .env en la raíz con la siguiente configuración:
 
 DATABASE_URL=postgresql://postgres.zsjnpllwntyzjqkjpadn:TU_PASSWORD@aws-0-us-west-2.pooler.supabase.com:6543/postgres
-PORT=4000
 
 ⚠️ Importante: No subir el archivo .env al repositorio.
 
