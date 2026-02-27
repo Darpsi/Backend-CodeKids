@@ -1,67 +1,85 @@
-🚀 CodeKids: Plataforma Educativa Backend
+# 🚀 CodeKids: Plataforma Educativa (Backend)
 
-API REST desarrollada para gestionar la lógica del servidor, autenticación de usuarios, conexión con la base de datos y manejo de la información de la plataforma educativa CodeKids.
+Bienvenido al corazón de **CodeKids**. Esta es una API REST robusta diseñada para gestionar la lógica del servidor, la autenticación de usuarios y la persistencia de datos de nuestra plataforma educativa. 
 
-Este backend se encarga de conectar el frontend con la base de datos en la nube mediante una arquitectura escalable y segura.
+El backend actúa como el puente entre el frontend y nuestra base de datos en la nube, garantizando una arquitectura escalable, segura y eficiente.
 
-🛠️ Stack Tecnológico
+---
 
-Este proyecto fue construido utilizando tecnologías modernas de desarrollo Backend:
+## 🛠️ Stack Tecnológico
 
-Categoría	Tecnología
-Entorno de Ejecución	Node.js
-Framework Backend	Express.js
-Base de Datos	PostgreSQL
-Base de Datos en la Nube	Supabase
-Gestor de Paquetes	npm
-Control de Versiones	Git / GitHub
-🌟 Características Clave
+Hemos seleccionado tecnologías modernas para asegurar un rendimiento óptimo:
 
-El backend de CodeKids implementa:
+| Categoría | Tecnología |
+| :--- | :--- |
+| **Entorno de Ejecución** | Node.js |
+| **Framework Backend** | Express.js |
+| **Base de Datos** | PostgreSQL |
+| **Base de Datos en la Nube** | Supabase |
+| **Gestor de Paquetes** | npm |
+| **Control de Versiones** | Git / GitHub |
 
-API RESTful: Manejo estructurado de rutas y controladores.
+---
 
-Conexión Segura a Base de Datos: Uso de pool de conexiones para Supabase.
+## 🌟 Características Clave
 
-Arquitectura Modular: Separación por rutas, controladores y configuración de base de datos.
+El backend de CodeKids está diseñado bajo los siguientes pilares:
 
-Gestión de Usuarios e Instituciones: CRUD para usuarios, insignias e instituciones.
+* **API RESTful:** Manejo estructurado y estandarizado de rutas y controladores.
+* **Conexión Segura:** Implementación de *pooling* de conexiones para interactuar con Supabase de forma eficiente.
+* **Arquitectura Modular:** Organización limpia mediante la separación de rutas, controladores y configuraciones.
+* **Gestión Integral (CRUD):** Control total sobre usuarios, insignias e instituciones.
+* **Escalabilidad:** Optimización de recursos para soportar el crecimiento de la plataforma.
 
-Escalabilidad: Optimización mediante pool de conexiones.
+---
 
-📂 Estructura del Proyecto
+## 📂 Estructura del Proyecto
+
+La organización del código sigue un patrón modular para facilitar el mantenimiento:
+
+```text
 Backend-CodeKids/
 │
 ├── src/
-│   ├── routes/
-│   ├── controllers/
-│   ├── services/
-│   ├── config.js
-│   ├── db.js
-│   ├── encriptarInstituciones.js
-│   └── index.js
+│   ├── routes/          # Definición de puntos finales (endpoints)
+│   ├── controllers/     # Lógica de negocio
+│   ├── services/        # Consultas y lógica de datos
+│   ├── config.js        # Configuraciones globales
+│   ├── db.js            # Configuración de la conexión a DB
+│   ├── encriptarInst.js # Scripts de utilidad y seguridad
+│   └── index.js         # Punto de entrada de la aplicación
 │
-├── package.json
-└── .env
-⚙️ Variables de Entorno
+├── package.json         # Dependencias y scripts
+└── .env                 # Variables de entorno (No trackeado)
 
-Antes de ejecutar el proyecto, crea un archivo .env en la raíz con la siguiente configuración:
+```
 
-DATABASE_URL=postgresql://postgres.zsjnpllwntyzjqkjpadn:TU_PASSWORD@aws-0-us-west-2.pooler.supabase.com:6543/postgres
+## ⚙️ Configuración de Variables de Entorno
 
-⚠️ Importante: No subir el archivo .env al repositorio.
+Para que el backend pueda conectarse a la base de datos y funcionar correctamente, es necesario configurar las variables de entorno. 
 
-⚙️ Cómo Ejecutar el Proyecto Localmente
+### 1. Crear el archivo de configuración
+Crea un archivo llamado `.env` en la raíz del proyecto y copiar el siguiente contenido:
+
+```env
+# Configuración de Base de Datos (Supabase/PostgreSQL)
+DATABASE_URL=postgresql://postgres.zsjnpllwntyzjqkjpadn:01XrGu4cKPvKsK@aws-0-us-west-2.pooler.supabase.com:6543/postgres
+```
+
+## ⚙️ Cómo Ejecutar el Proyecto Localmente
 
 Sigue estos pasos para levantar el backend en tu máquina local:
 
-1️⃣ Clonar el Repositorio
+### 1️⃣ Clonar el Repositorio
+```bash
 git clone git@github.com:Darpsi/Backend-CodeKids.git
+```
 2️⃣ Instalar Dependencias
+```bash
 npm install
+```
 3️⃣ Iniciar el Servidor
+```bash
 npm start
-
-El servidor se ejecutará en:
-
-http://localhost:4000
+```
+El servidor se ejecutará en: 👉 http://localhost:4000
