@@ -1,15 +1,10 @@
 import pg from 'pg';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Configuración de la conexión
 export const pool = new pg.Pool({
-  user: 'postgres', // Usuario de la base de datos
-  host: 'database-1.cbaw20om6wxc.us-east-2.rds.amazonaws.com',
-  database: 'Codekids', // Nombre de la base de datos
-  password: 'posgrescodekids', // Contraseña de la base de datos
-  port: 5432, // Puerto de PostgreSQL
-  ssl: {
-    rejectUnauthorized: false, // Necesario para conexiones SSL
-  },
+  connectionString: process.env.DATABASE_URL
 });
 
 async function verificarConexion() {
